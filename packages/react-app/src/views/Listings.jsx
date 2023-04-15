@@ -1,16 +1,12 @@
 import { useContractReader } from "eth-hooks";
 import { ethers } from "ethers";
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { DealCard } from "../components";
 
-/**
- * web3 props can be passed from '../App.jsx' into your local view component for use
- * @param {*} yourLocalBalance balance on current network
- * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
- * @returns react component
- **/
 function Listings({ yourLocalBalance, readContracts }) {
+  // const [deals, setDeals] = useState({})
+
   const deals = [
     {
       company: "DAO A",
@@ -37,7 +33,10 @@ function Listings({ yourLocalBalance, readContracts }) {
       <br />
       <br />
       {deals.map((deal, index) => (
-        <DealCard key={index} {...deal} />
+        //index = bondId
+        // <Link key={index} to={`/buy-bond/${index}`}>
+        <DealCard key={index} bondId={index} {...deal} />
+        // </Link>
       ))}
     </div>
   );

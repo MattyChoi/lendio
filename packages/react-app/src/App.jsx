@@ -29,7 +29,7 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { getRPCPollTime, Transactor, Web3ModalSetup } from "./helpers";
-import { Home, ExampleUI, Hints, Subgraph, Listings, CreateDeal, ManageDeal } from "./views";
+import { Home, ExampleUI, Hints, Subgraph, Listings, CreateDeal, ManageDeal, BuyBond } from "./views";
 import { useStaticJsonRPC, useGasPrice } from "./hooks";
 
 const { ethers } = require("ethers");
@@ -354,6 +354,9 @@ function App(props) {
             blockExplorer={blockExplorer}
             contractConfig={contractConfig}
           />
+        </Route>
+        <Route path="/buy-bond/:bondId">
+          <BuyBond />
         </Route>
         <Route path="/listings">
           <Listings yourLocalBalance={yourLocalBalance} />

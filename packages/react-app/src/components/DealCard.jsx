@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 const styles = {
   cardWrapper: (bgColor, bgImage) => ({
@@ -27,7 +28,7 @@ const styles = {
   }),
 };
 
-const DealCard = ({ company, bgColor, bgImage, children }) => {
+const DealCard = ({ bondId, company, bgColor, bgImage, children }) => {
   const [expanded, setExpanded] = useState(false);
   const [hover, setHover] = useState(false);
 
@@ -46,7 +47,11 @@ const DealCard = ({ company, bgColor, bgImage, children }) => {
       }}
     >
       <h3 style={styles.cardTitle}>{company}</h3>
-      <div style={styles.cardContent(expanded)}>{children}</div>
+      <div style={styles.cardContent(expanded)}>
+        <Link key={bondId} to={`/buy-bond/${bondId}`}>
+          {children}
+        </Link>
+      </div>
     </div>
   );
 };

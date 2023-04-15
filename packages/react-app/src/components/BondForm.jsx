@@ -63,6 +63,7 @@ const BondForm = () => {
   const [hover, setHover] = useState(false);
 
   const handleSubmit = event => {
+    console.log("Test");
     event.preventDefault();
     // Process form data and handle submission logic
   };
@@ -116,6 +117,7 @@ const BondForm = () => {
 
       <button
         type="submit"
+        onClick={handleSubmit}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         style={{
