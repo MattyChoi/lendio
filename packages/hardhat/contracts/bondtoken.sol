@@ -7,18 +7,21 @@ import "../node_modules/@openzeppelin/contracts/token/ERC1155/extensions/ERC1155
 import "../node_modules/@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
 
-contract BondToken is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
+contract BondManager is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
+    uint256 private _currentID;
+
     constructor() ERC1155("") {}
 
     function setURI(string memory newuri) public onlyOwner {
         _setURI(newuri);
     }
 
-    function mint(address account, uint256 id, uint256 amount, bytes memory data)
+    function mint(address account, uint256 amount)
         public
         onlyOwner
     {
-        _mint(account, id, amount, data);
+        _mint(account, _currentID, amount, "");
+        _currentID += 1;
     }
 
     function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
@@ -35,5 +38,9 @@ contract BondToken is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
         override(ERC1155, ERC1155Supply)
     {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+    }
+
+    function currentID() public view returns (uint256) {
+        return _currentID;
     }
 }
