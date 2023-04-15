@@ -60,6 +60,9 @@ module.exports = {
   // Follow the directions, and uncomment the network you wish to deploy to.
 
   networks: {
+    hardhat: {
+      chainId: 1337 // We set 1337 to make interacting with MetaMask simpler
+    },
     localhost: {
       url: "http://127.0.0.1:8545/",
       /*
