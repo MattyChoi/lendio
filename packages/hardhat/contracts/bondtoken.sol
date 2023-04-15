@@ -6,7 +6,8 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
-contract MyToken is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
+
+contract BondToken is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
     constructor() ERC1155("") {}
 
     function setURI(string memory newuri) public onlyOwner {
