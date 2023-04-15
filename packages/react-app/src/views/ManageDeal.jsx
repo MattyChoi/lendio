@@ -2,6 +2,7 @@ import { useContractReader } from "eth-hooks";
 import { ethers } from "ethers";
 import React from "react";
 import { Link } from "react-router-dom";
+import { BondCard } from "../components";
 
 /**
  * web3 props can be passed from '../App.jsx' into your local view component for use
@@ -9,12 +10,31 @@ import { Link } from "react-router-dom";
  * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
  * @returns react component
  **/
-function ManageDeal({ yourLocalBalance, readContracts }) {
-  // you can also use hooks locally in your component of choice
-  // in this case, let's keep track of 'purpose' variable from our contract
-  const purpose = useContractReader(readContracts, "YourContract", "purpose");
+const ManageDeal = () => {
+  // Sample bond data
+  const bondData = {
+    mintDate: "2023-01-01",
+    maturityDate: "2028-01-01",
+    principal: 1000,
+    coupon: 5,
+    bondsBought: 600,
+    totalBonds: 1000,
+  };
 
-  return <div>Manage Deal</div>;
-}
+  const containerStyles = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    minHeight: "100vh", // Adjust this value if you have a fixed header or footer
+    padding: "0 16px", // Add some horizontal padding for small screens
+  };
 
+  return (
+    <div style={containerStyles}>
+      <h1>Manage Issued Bonds</h1>
+      <BondCard {...bondData} />
+      {/* Render more BondCard components with different bond data */}
+    </div>
+  );
+};
 export default ManageDeal;

@@ -2,6 +2,7 @@ import { useContractReader } from "eth-hooks";
 import { ethers } from "ethers";
 import React from "react";
 import { Link } from "react-router-dom";
+import { BondForm } from "../components";
 
 /**
  * web3 props can be passed from '../App.jsx' into your local view component for use
@@ -14,7 +15,11 @@ function CreateDeal({ yourLocalBalance, readContracts }) {
   // in this case, let's keep track of 'purpose' variable from our contract
   const purpose = useContractReader(readContracts, "YourContract", "purpose");
 
-  return <div>Create Deal</div>;
+  return (
+    <div>
+      <BondForm />
+    </div>
+  );
 }
 
 export default CreateDeal;
