@@ -14,19 +14,19 @@ contract Deal is ERC1155Holder {
     address public denom;
     ERC20 private token;
     uint256 public principal;
-    uint256 private coupon;
-    uint256 private maturity;
-    uint256 private supply;
-    uint256 private amtLeft;
+    uint256 public coupon;
+    uint256 public maturity;
+    uint256 public supply;
+    uint256 public amtLeft;
     address public admin;
     BondManager private bondManager;
-    uint256 private status = 0; // 0 pending, 1 executed, 2 for canceled
-    uint256 private id;
-    uint256 private repaymentAmt;
+    uint256 public status = 0; // 0 pending, 1 executed, 2 for canceled
+    uint256 public id;
+    uint256 public repaymentAmt;
 
     constructor(
-        address _denom, // currency token address
         address _bondManager, // address of ERC1155 contract
+        address _denom, // currency token address
         uint256 _principal,
         uint256 _coupon, // interest rate (whole number)
         uint256 _maturity, // maturity timestamp
@@ -105,7 +105,7 @@ contract Deal is ERC1155Holder {
         creditors[msg.sender] = 0;
     }
 
-    function redeemCoupon() external {
+    function redeemBond() external {
         // Get interest payment
         require(block.timestamp >= maturity, "The bond has not matured yet");
         // the repayment amount is shifted to the left 2 places. send repaymentAmt * 10 ^ (decimals - 2)
@@ -114,21 +114,34 @@ contract Deal is ERC1155Holder {
                 repaymentAmt * 10 ** (token.decimals() - 2),
             "The deal contract has not yet been funded"
         );
-        // todo: transfer bond from sender to contract
-        // todo: transfer USD from contract to sender
+        // burn bonds
+        uint256 numBonds = bondManager.balanceOf(msg.sender, id);
+        bondManager.burn(msg.sender, id, numBonds);
+        // transfer USD from contract to sender
+        token.transfer(msg.sender, numBonds * principal * (100 + coupon) * 10 ** (token.decimals() - 2));
     }
 }
 
 contract DealFactory {
     Deal[] public deals;
 
-    BondManager public immutable manager;
+    address public immutable manager;
+
+    event LaunchDeal(address dealContract, address denom, uint256 principal, uint256 coupon, uint256 maturity, uint256 supply);
 
     constructor() {
-        manager = new BondManager();
+        manager = address(new BondManager());
     }
 
-    function launchDeal() external {
-        
+    function launchDeal(
+        address _denom,
+        uint256 _principal,
+        uint256 _coupon,
+        uint256 _maturity,
+        uint256 _supply
+    ) external {
+        Deal deal = new Deal(manager, _denom, _principal, _coupon, _maturity, _supply, msg.sender);
+        deals.push(deal);
+        emit LaunchDeal(address(deal), _denom, _principal, _coupon, _maturity, _supply);
     }
 }
