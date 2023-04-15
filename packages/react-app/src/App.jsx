@@ -29,7 +29,7 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { getRPCPollTime, Transactor, Web3ModalSetup } from "./helpers";
-import { Home, ExampleUI, Hints, Subgraph } from "./views";
+import { Home, ExampleUI, Hints, Subgraph, Listings, CreateDeal, ManageDeal } from "./views";
 import { useStaticJsonRPC, useGasPrice } from "./hooks";
 
 const { ethers } = require("ethers");
@@ -53,7 +53,7 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.goerliArbitrum; // <------- select your target frontend network (localhost, goerli, xdai, mainnet)
+const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, goerli, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -304,16 +304,25 @@ function App(props) {
         USE_NETWORK_SELECTOR={USE_NETWORK_SELECTOR}
       />
       <Menu style={{ textAlign: "center", marginTop: 20 }} selectedKeys={[location.pathname]} mode="horizontal">
-        <Menu.Item key="/">
+        {/* <Menu.Item key="/">
           <Link to="/">App Home</Link>
+        </Menu.Item> */}
+        <Menu.Item key="/listings">
+          <Link to="/listings">Listings</Link>
         </Menu.Item>
-        <Menu.Item key="/debug">
+        <Menu.Item key="/createdeal">
+          <Link to="/createdeal">Create Deal</Link>
+        </Menu.Item>
+        <Menu.Item key="/managedeal">
+          <Link to="/managedeal">Manage Deal</Link>
+        </Menu.Item>
+        {/* <Menu.Item key="/debug">
           <Link to="/debug">Debug Contracts</Link>
         </Menu.Item>
         <Menu.Item key="/hints">
           <Link to="/hints">Hints</Link>
-        </Menu.Item>
-        <Menu.Item key="/exampleui">
+        </Menu.Item> */}
+        {/* <Menu.Item key="/exampleui">
           <Link to="/exampleui">ExampleUI</Link>
         </Menu.Item>
         <Menu.Item key="/mainnetdai">
@@ -321,7 +330,7 @@ function App(props) {
         </Menu.Item>
         <Menu.Item key="/subgraph">
           <Link to="/subgraph">Subgraph</Link>
-        </Menu.Item>
+        </Menu.Item> */}
       </Menu>
 
       <Switch>
@@ -345,6 +354,15 @@ function App(props) {
             blockExplorer={blockExplorer}
             contractConfig={contractConfig}
           />
+        </Route>
+        <Route path="/listings">
+          <Listings yourLocalBalance={yourLocalBalance} />
+        </Route>
+        <Route path="/managedeal">
+          <ManageDeal yourLocalBalance={yourLocalBalance} />
+        </Route>
+        <Route path="/createdeal">
+          <CreateDeal yourLocalBalance={yourLocalBalance} />
         </Route>
         <Route path="/hints">
           <Hints
