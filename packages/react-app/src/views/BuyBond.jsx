@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import { ethers } from "ethers";
 
-function BuyBond() {
+import dealFactoryABI from "contracts/DealFactory.sol/DealFactory.json";
+
+function BuyBond(userSigner, contractAddress) {
   const { bondId } = useParams();
+
+  // get contract variable
+  const dealContract = new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner);
 
   // Sample bond data, replace with actual data from your data source
   const bondData = {

@@ -342,7 +342,7 @@ function App(props) {
           />
         </Route>
         <Route path="/buy-bond/:bondId">
-          <BuyBond />
+          <BuyBond userSigner={userSigner} contractAddress={contractAddress} />
         </Route>
         <Route path="/listings">
           <Listings yourLocalBalance={yourLocalBalance} />
