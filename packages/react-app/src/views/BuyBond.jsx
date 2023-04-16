@@ -7,6 +7,11 @@ import dealABI from "../contracts/Deal.sol/Deal.json";
 function BuyBond({ userSigner, deals }) {
   const { bondId } = useParams();
 
+  const [bondsToBuy, setBondsToBuy] = useState(0);
+  const [usdcDeposited, setUsdcDeposited] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [usdcApproved, setUsdcApproved] = useState(false);
+
   // Sample bond data, replace with actual data from your data source
   /* address: address,
   denom: denom,
@@ -19,7 +24,7 @@ function BuyBond({ userSigner, deals }) {
   const bondData = deals[bondId];
 
   // get the deal contract to make transactions
-  const dealContract = new ethers.Contract(bondData.address, dealABI.abi, userSigner);
+  const dealContract = bondData != null ? new ethers.Contract(bondData.address, dealABI.abi, userSigner) : null;
 
   const styles = {
     container: {
@@ -68,11 +73,6 @@ function BuyBond({ userSigner, deals }) {
       cursor: "not-allowed",
     },
   };
-
-  const [bondsToBuy, setBondsToBuy] = useState(0);
-  const [usdcDeposited, setUsdcDeposited] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  const [usdcApproved, setUsdcApproved] = useState(false);
 
   const handleApproveUSDC = async () => {
     // Check if the value in the bondsToBuy input is an integer greater than 0
@@ -239,53 +239,41 @@ function BuyBond({ userSigner, deals }) {
 
   return (
     <div style={styles.container}>
-      <h1>Buy Bond</h1>
-      <div style={styles.details}>
-        <h2>Bond Details</h2>
-        <div>Address: {bondData.address}</div>
-        <div>Maturity Date: {new Date(bondData.maturity * 1000).toString()}</div>
-        <div>Principal: {bondData.principal}</div>
-        <div>Coupon: {bondData.coupon}</div>
-        <div>Number of Bonds Available: {bondData.amtLeft}</div>
-        <label htmlFor="bondsToBuy">Number of bonds to buy:</label>
-        <input
-          type="number"
-          style={styles.input}
-          id="bondsToBuy"
-          value={bondsToBuy}
-          onChange={e => setBondsToBuy(parseInt(e.target.value))}
-          min="0"
-        />
-      </div>
-      <br />
-      <button
-        style={{ ...styles.button, ...(usdcApproved ? styles.buttonDisabled : {}) }}
-        onClick={handleApproveUSDC}
-        disabled={usdcApproved}
-      >
-        Approve USDC
-      </button>
-      <button
-        style={{ ...styles.button, ...(!usdcApproved ? styles.buttonDisabled : {}) }}
-        onClick={handleDepositUSDC}
-        disabled={!usdcApproved}
-      >
-        Deposit USDC
-      </button>
-      <button
-        style={{ ...styles.button, ...(!usdcDeposited ? styles.buttonDisabled : {}) }}
-        onClick={handleWithdrawUSDC}
-        disabled={!usdcDeposited}
-      >
-        Withdraw USDC
-      </button>
-      <button
-        style={{ ...styles.button, ...(!usdcDeposited ? styles.buttonDisabled : {}) }}
-        onClick={handleRedeemBond}
-        disabled={!usdcDeposited}
-      >
-        Redeem bond
-      </button>
+      {bondData && (
+        <div>
+          <h1>Buy Bond</h1>
+          <div style={styles.details}>
+            <h2>Bond Details</h2>
+            <div>Address: {bondData.address}</div>
+            <div>Maturity Date: {new Date(bondData.maturity * 1000).toString()}</div>
+            <div>Principal: {bondData.principal}</div>
+            <div>Coupon: {bondData.coupon}</div>
+            <div>Number of Bonds Available: {bondData.amtLeft}</div>
+            <label htmlFor="bondsToBuy">Number of bonds to buy:</label>
+            <input
+              type="number"
+              style={styles.input}
+              id="bondsToBuy"
+              value={bondsToBuy}
+              onChange={e => setBondsToBuy(parseInt(e.target.value))}
+              min="0"
+            />
+          </div>
+          <br />
+          <button style={{ ...styles.button }} onClick={handleApproveUSDC} disabled={false}>
+            Approve USDC
+          </button>
+          <button style={{ ...styles.button }} onClick={handleDepositUSDC} disabled={false}>
+            Deposit USDC
+          </button>
+          <button style={{ ...styles.button }} onClick={handleWithdrawUSDC} disabled={false}>
+            Withdraw USDC
+          </button>
+          <button style={{ ...styles.button }} onClick={handleRedeemBond} disabled={false}>
+            Redeem bond
+          </button>
+        </div>
+      )}
     </div>
   );
 }
