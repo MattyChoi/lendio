@@ -256,58 +256,51 @@ function App(props) {
   const factoryContract = new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner);
 
   // get all current deal contracts that have been made
-  const [numDeals, setNumDeals] = useState(0);
-  const [deals, setDeals] = useState([]);
+  async function getNumDeals() {
+    return await factoryContract.length().toNumber();
+  }
+  const numDeals = getNumDeals();
 
-  useEffect(() => {
-    // async function getNumDeals () {
-    //   const length = await factoryContract.length();
-    //   return length.toNumber();
-    // }
-    // console.log(getNumDeals());
-    // setNumDeals(getNumDeals());
+  async function getDealParams(i) {
+    let params;
+    try {
+      const address = await factoryContract.deals(i);
+      console.log(address);
+      const dealContract = new ethers.Contract(address, dealABI.abi, userSigner);
 
-    async function getDealParams(i) {
-      let params;
-      try {
-        const address = await factoryContract.deals(i);
-        console.log(address);
-        const dealContract = new ethers.Contract(address, dealABI.abi, userSigner);
-
-        // Deal constants
-        // address public denom;
-        // uint256 public principal;
-        // uint256 public coupon;
-        // uint256 public maturity;
-        // uint256 public supply;
-        // uint256 public amtLeft;
-        // address public admin;
-        // uint256 public repaymentAmt;
-        params = {
-          address: address,
-          denom: await dealContract.denom(),
-          principal: await dealContract.principal(),
-          coupon: await dealContract.coupon(),
-          maturity: await dealContract.maturity(),
-          supply: await dealContract.supply(),
-          amtLeft: await dealContract.amtLeft(),
-        };
-      } catch (err) {
-        console.log(i);
-      }
-      return params;
+      // Deal constants
+      // address public denom;
+      // uint256 public principal;
+      // uint256 public coupon;
+      // uint256 public maturity;
+      // uint256 public supply;
+      // uint256 public amtLeft;
+      // address public admin;
+      // uint256 public repaymentAmt;
+      params = {
+        address: address,
+        denom: await dealContract.denom(),
+        principal: await dealContract.principal(),
+        coupon: await dealContract.coupon(),
+        maturity: await dealContract.maturity(),
+        supply: await dealContract.supply(),
+        amtLeft: await dealContract.amtLeft(),
+      };
+    } catch (err) {
+      console.log(i);
     }
-    let dealArr = [];
-    for (let i = 0; i < 3; i++) {
-      try {
-        let params = getDealParams(i);
-        dealArr.push(params);
-      } catch (err) {
-        console.log(err);
-      }
+    return params;
+  }
+
+  let deals = [];
+  for (let i = 0; i < numDeals; i++) {
+    try {
+      let params = getDealParams(i);
+      deals.push(params);
+    } catch (err) {
+      console.log(err);
     }
-    setDeals(dealArr);
-  }, []);
+  }
 
   console.log("Number of deal contracts : ", numDeals);
   console.log(deals);
