@@ -72,13 +72,12 @@ const BondForm = (userSigner, contractAddress) => {
   // interact with smart contract here
   const handleSubmit = e => {
     e.preventDefault();
-    console.log(typeof date, curr, princ, coup, numBonds);
 
-    console.log(typeof dealFactoryABI);
     // get contract variable
-    const dealContract = new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner);
+    const dealContract = new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner.userSigner);
 
-    console.log(dealContract);
+    // DAO can launch deal using the deal contract
+    dealContract.launchDeal("0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d", princ, coup, date.getTime(), numBonds);
   };
 
   const renderInputWithPostfix = (id, type, postfix, hook) => {
@@ -113,7 +112,7 @@ const BondForm = (userSigner, contractAddress) => {
         id="maturityDate"
         style={styles.input}
         onChange={e => {
-          setDate(e.target.valueAsDate);
+          setDate(new Date(e.target.value));
         }}
         required
       />
