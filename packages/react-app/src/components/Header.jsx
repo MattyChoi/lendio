@@ -25,6 +25,6 @@ export default function Header({ link, title, subTitle, ...props }) {
 
 Header.defaultProps = {
   link: "https://github.com/MattyChoi/lendio",
-  title: "Blend.io",
+  title: "BonDAO",
   subTitle: "Stable investing for everyone",
 };

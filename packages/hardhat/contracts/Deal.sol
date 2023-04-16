@@ -27,6 +27,16 @@ contract Deal is ERC1155Holder {
     mapping(address => uint256) public creditors; // address to number of bonds each creditor wants to buy
     uint256 public status = 0; // 0 pending, 1 executed, 2 for canceled
 
+    /// @notice Constructor for the Deal contract
+    /// @dev Initializes the contract with given parameters
+    /// @param _dealFactory Address of DealFactory contract
+    /// @param _bondManager Address of BondManager contract
+    /// @param _denom Currency token address
+    /// @param _principal Principal amount per bond
+    /// @param _coupon Interest rate (whole number)
+    /// @param _maturity Maturity timestamp
+    /// @param _supply Amount of bonds to issue
+    /// @param _admin Admin of the deal
     constructor(
         address _dealFactory, // address of DealFactory contract
         address _bondManager, // address of BondManager
@@ -63,11 +73,15 @@ contract Deal is ERC1155Holder {
 
     // PRE-SALE FUNCTIONS (status=0)
 
+    /// @notice Calculate the atomic price of specified number of bonds
+    /// @param numBonds Number of bonds to calculate the price for
+    /// @return The atomic price of the specified number of bonds
     function calcAtomicPrice(uint256 numBonds) public view returns (uint256) {
         return numBonds * principal * 10 ** ERC20(denom).decimals();
     }
 
-    // how many bond tokens the creditor wants to buy
+    /// @notice Deposit the required amount to buy specified number of bonds
+    /// @param numBonds Number of bonds the creditor wants to buy
     function deposit(uint256 numBonds) external onlyStatus(0) {
         require(numBonds <= amtLeft, "There are not enough bonds left");
         ERC20 token = ERC20(denom);
@@ -76,18 +90,20 @@ contract Deal is ERC1155Holder {
         creditors[msg.sender] += numBonds;
     }
 
-    // execute the deal when the supply is zero
+    /// @notice Execute the deal when the supply is zero
     function execute() external onlyAdmin onlyStatus(0) {
         require(amtLeft == 0, "Deal cannot execute because amount left is not 0");
         status = 1;
     }
 
+    /// @notice Cancel the deal
     function cancel() external onlyAdmin onlyStatus(0) {
         status = 2;
     }
 
     // POST-SALE FUNCTIONS (status=1)
 
+    /// @notice Collect the bond tokens after the deal is executed
     function collectBond() external onlyStatus(1) {
         // Get the bond
         require(creditors[msg.sender] > 0, "No bonds to collect");
@@ -96,10 +112,13 @@ contract Deal is ERC1155Holder {
         creditors[msg.sender] = 0;
     }
 
+    /// @notice Calculate the price per bond using the principal and coupon
+    /// @return The price per bond
     function calcPricePer() public view returns (uint256) {
         return principal * (100 + coupon) * 10 ** (ERC20(denom).decimals() - 2);
     }
 
+    /// @notice Redeem the bond and receive the principal plus interest
     function redeemBond() external onlyStatus(1) {
         // Get interest payment
         require(block.timestamp >= maturity, "The bond has not matured yet");
@@ -120,7 +139,8 @@ contract Deal is ERC1155Holder {
 
     // CANCELED FUNCTIONS (status=2)
 
-    // Move deposited cash back to creditor
+    /// @notice Withdraw deposited funds after the deal is canceled
+    /// @dev Transfers the deposited funds back to the creditor and sets their bond balance to zero
     function withdraw() external onlyStatus(2) {
         ERC20 token = ERC20(denom);
         token.transfer(msg.sender, calcAtomicPrice(creditors[msg.sender]));
