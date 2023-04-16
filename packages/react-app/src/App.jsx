@@ -327,7 +327,7 @@ function App(props) {
       });
     }
     fetchDealData();
-  }, []);
+  }, [factoryContract, userSigner]);
 
   console.log("Number of deal contracts : ", numDeals);
   console.log(dealArr);
