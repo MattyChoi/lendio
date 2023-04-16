@@ -9,6 +9,7 @@ import "./Deal.sol";
 
 /// @title A factory for Deal contracts
 /// @author Matthew Choi, Brian Eide, Zachary Mabie, Timothy Tu
+/// @notice This contract is responsible for creating and managing Deal contracts for bond offerings.
 contract DealFactory {
     mapping(address => uint256) public bonds; // address -> token ID
     address[] public deals;
@@ -25,6 +26,7 @@ contract DealFactory {
         uint256 supply
     );
 
+    /// @notice Initializes the DealFactory contract by creating a new BondManager instance.
     constructor() {
         manager = address(new BondManager());
     }
@@ -34,6 +36,12 @@ contract DealFactory {
         _;
     }
 
+    /// @notice Launches a new Deal contract for a bond offering.
+    /// @param _denom The address of the ERC20 token used as the denomination for the bond offering.
+    /// @param _principal The principal amount per bond.
+    /// @param _coupon The coupon rate (as a whole number) for the bond offering.
+    /// @param _maturity The maturity date (as a timestamp) of the bond offering.
+    /// @param _supply The total number of bonds to be issued in the offering.
     function launchDeal(
         address _denom, 
         uint256 _principal, 
@@ -51,6 +59,9 @@ contract DealFactory {
         emit LaunchDeal(deal, _denom, _principal, _coupon, _maturity, _supply);
     }
 
+    /// @notice Transfers the bond tokens from the Deal contract to a specified address.
+    /// @param to The address to receive the bond tokens.
+    /// @param amount The number of bond tokens to transfer.
     function releaseBond(address to, uint256 amount) external onlyDeal {
         BondManager(manager).safeTransferFrom(msg.sender, to, bonds[msg.sender], amount, "");
     }
