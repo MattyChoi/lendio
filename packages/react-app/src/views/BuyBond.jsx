@@ -17,8 +17,6 @@ function BuyBond({ userSigner, deals }) {
   amtLeft: amtLeft.toNumber(), */
 
   const bondData = deals[bondId];
-  const maturity = new Date(bondData.maturity * 1000);
-  console.log(maturity);
 
   // get the deal contract to make transactions
   const dealContract = new ethers.Contract(bondData.address, dealABI.abi, userSigner);
@@ -75,7 +73,7 @@ function BuyBond({ userSigner, deals }) {
   const [usdcDeposited, setUsdcDeposited] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-  const handleDepositUSDC = () => {
+  const handleDepositUSDC = async () => {
     // Check if the value in the bondsToBuy input is an integer greater than 0
     if (bondsToBuy <= 0 || !Number.isInteger(bondsToBuy)) {
       alert("Please enter a valid number of bonds greater than 0.");
@@ -85,21 +83,23 @@ function BuyBond({ userSigner, deals }) {
 
     if (confirmation) {
       // Handle depositing USDC logic here
+      await dealContract.deposit(bondsToBuy);
 
       setUsdcDeposited(true);
       setBondsToBuy(0);
       setIsSuccessModalOpen(true);
-    } else {
-      // User clicked Cancel; do nothing
     }
   };
 
-  const handleWithdrawUSDC = () => {
+  const handleWithdrawUSDC = async () => {
     // Handle withdrawing USDC logic here
+    // can only withdraw usdc if
+    await dealContract.withdraw();
   };
 
-  const handleRedeemBond = () => {
+  const handleRedeemBond = async () => {
     // Handle redeeming bond logic here
+    await dealContract.redeemBond();
   };
 
   return (
@@ -108,7 +108,7 @@ function BuyBond({ userSigner, deals }) {
       <div style={styles.details}>
         <h2>Bond Details</h2>
         <div>Address: {bondData.address}</div>
-        <div>Maturity Date: {maturity.toString()}</div>
+        <div>Maturity Date: {new Date(bondData.maturity * 1000).toString()}</div>
         <div>Principal: {bondData.principal}</div>
         <div>Coupon: {bondData.coupon}</div>
         <div>Number of Bonds Available: {bondData.amtLeft}</div>
