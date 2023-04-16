@@ -72,11 +72,12 @@ const BondForm = ({ factoryContract }) => {
     e.preventDefault();
 
     console.log(princ, coup, date.getTime(), numBonds);
+    console.log(princ);
     // DAO can launch deal using the deal contract
     (async () => {
       try {
         await factoryContract.launchDeal(
-          "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+          "0xA6847a9b6b6aF5bd09A36c3b331f6c66CA46c998",
           princ,
           coup,
           date.getTime() / 1000,
