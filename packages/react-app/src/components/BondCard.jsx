@@ -28,21 +28,21 @@ const styles = {
   },
 };
 
-const BondCard = ({ mintDate, maturityDate, principal, coupon, bondsBought, totalBonds }) => {
-  const timeLeft = (new Date(maturityDate) - new Date()) / (1000 * 60 * 60 * 24);
-  const progressPercentage = (bondsBought / totalBonds) * 100;
+const BondCard = ({ denom, maturity, principal, coupon, supply, amtLeft }) => {
+  maturity = new Date(maturity * 1000);
+  const timeLeft = (maturity - Date.now()) / (1000 * 60 * 60 * 24);
+  const progressPercentage = (supply - amtLeft / supply) * 100;
 
   return (
     <div style={styles.bondCard}>
       <div style={styles.bondCardTitle}>Bond Information</div>
-      <div style={styles.bondData}>Mint Date: {mintDate}</div>
-      <div style={styles.bondData}>Maturity Date: {maturityDate}</div>
+      <div style={styles.bondData}>Maturity Date: {maturity.toString()}</div>
       <div style={styles.bondData}>Time Left: {timeLeft.toFixed(0)} days</div>
       <div style={styles.bondData}>Principal: {principal} USDC</div>
       <div style={styles.bondData}>Coupon: {coupon}%</div>
 
       <div style={styles.bondData}>
-        Bonds Bought: {bondsBought}/{totalBonds}
+        Bonds Bought: {supply - amtLeft}/{supply}
       </div>
       <div style={styles.progressBarContainer}>
         <div style={{ ...styles.progressBar, width: `${progressPercentage}%` }}></div>

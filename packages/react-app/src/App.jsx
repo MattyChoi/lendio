@@ -434,7 +434,7 @@ function App(props) {
           <Listings yourLocalBalance={yourLocalBalance} deals={dealArr} />
         </Route>
         <Route path="/managedeal">
-          <ManageDeal yourLocalBalance={yourLocalBalance} />
+          <ManageDeal yourLocalBalance={yourLocalBalance} deals={dealArr} userSigner={userSigner} />
         </Route>
         <Route path="/createdeal">
           <CreateDeal userSigner={userSigner} factoryContract={factoryContract} />
