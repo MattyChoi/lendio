@@ -2,22 +2,26 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
 
-import dealFactoryABI from "../contracts/DealFactory.sol/DealFactory.json";
+import dealABI from "../contracts/Deal.sol/Deal.json";
 
-function BuyBond({ userSigner, contractAddress }) {
+function BuyBond({ userSigner, deals }) {
   const { bondId } = useParams();
 
-  // get contract variable
-  const dealContract = new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner);
-
   // Sample bond data, replace with actual data from your data source
-  const bondData = {
-    bondId: bondId,
-    maturityDate: "2028-01-01",
-    principal: 1000,
-    coupon: 5,
-    numberOfBonds: 1000,
-  };
+  /* address: address,
+  denom: denom,
+  principal: principal.toNumber(),
+  coupon: coupon.toNumber(),
+  maturity: maturity.toNumber(),
+  supply: supply.toNumber(),
+  amtLeft: amtLeft.toNumber(), */
+
+  const bondData = deals[bondId];
+  const maturity = new Date(bondData.maturity * 1000);
+  console.log(maturity);
+
+  // get the deal contract to make transactions
+  const dealContract = new ethers.Contract(bondData.address, dealABI.abi, userSigner);
 
   const styles = {
     container: {
@@ -103,11 +107,11 @@ function BuyBond({ userSigner, contractAddress }) {
       <h1>Buy Bond</h1>
       <div style={styles.details}>
         <h2>Bond Details</h2>
-        <div>Bond ID: {bondData.bondId}</div>
-        <div>Maturity Date: {bondData.maturityDate}</div>
+        <div>Address: {bondData.address}</div>
+        <div>Maturity Date: {maturity.toString()}</div>
         <div>Principal: {bondData.principal}</div>
         <div>Coupon: {bondData.coupon}</div>
-        <div>Number of Bonds Available: {bondData.numberOfBonds}</div>
+        <div>Number of Bonds Available: {bondData.amtLeft}</div>
         <label htmlFor="bondsToBuy">Number of bonds to buy:</label>
         <input
           type="number"

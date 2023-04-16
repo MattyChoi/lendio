@@ -317,7 +317,7 @@ function App(props) {
 
       const callAsyncFunctions = async length => {
         let deals = [];
-        for (let i = 1; i <= length; i++) {
+        for (let i = 0; i < length; i++) {
           let dealParams = await getDealParams(i);
           deals.push(dealParams);
         }
@@ -428,7 +428,7 @@ function App(props) {
           />
         </Route>
         <Route path="/buy-bond/:bondId">
-          <BuyBond userSigner={userSigner} contractAddress={contractAddress} />
+          <BuyBond userSigner={userSigner} deals={dealArr} />
         </Route>
         <Route path="/listings">
           <Listings yourLocalBalance={yourLocalBalance} deals={dealArr} />
