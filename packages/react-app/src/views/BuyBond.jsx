@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 
 import dealFactoryABI from "../contracts/DealFactory.sol/DealFactory.json";
 
-function BuyBond(userSigner, contractAddress) {
+function BuyBond({ userSigner, contractAddress }) {
   const { bondId } = useParams();
 
   // get contract variable

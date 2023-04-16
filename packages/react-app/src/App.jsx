@@ -102,6 +102,37 @@ function App(props) {
     }, 1);
   };
 
+  // Create a websocket connection that listens for smart contract events
+  let listings = [];
+
+  useEffect(() => {
+    const ws = new WebSocket("ws://localhost:8000"); // Replace with your WebSocket server URL
+
+    ws.onopen = () => {
+      console.log("WebSocket connected");
+    };
+
+    ws.onmessage = message => {
+      const data = JSON.parse(message.data);
+      console.log("Smart Contract Event Received:", data);
+      listings.push(data);
+      console.log(data);
+    };
+
+    ws.onerror = error => {
+      console.error("WebSocket error:", error);
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
+
+    // Clean up the WebSocket connection when the component is unmounted
+    return () => {
+      ws.close();
+    };
+  }, []);
+
   /* 🔥 This hook will get the price of Gas from ⛽️ EtherGasStation */
   const gasPrice = useGasPrice(targetNetwork, "FastGasPrice", localProviderPollingTime);
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
