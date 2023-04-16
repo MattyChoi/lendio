@@ -40,7 +40,7 @@ contract DealFactory {
         uint256 _supply
     ) external {
         address deal = address(
-            new Deal(address(this), manager, _denom, _principal, _coupon, _maturity, _supply, msg.sender)
+            new Deal(address(this), _denom, _principal, _coupon, _maturity, _supply, msg.sender)
         );
         uint256 tokenID = BondManager(manager).mint(deal, _supply);
         bonds[deal] = tokenID;

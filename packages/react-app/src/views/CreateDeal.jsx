@@ -10,14 +10,14 @@ import { BondForm } from "../components";
  * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
  * @returns react component
  **/
-function CreateDeal({ yourLocalBalance, readContracts }) {
+function CreateDeal({ yourLocalBalance, readContracts, contractAddress, userSigner }) {
   // you can also use hooks locally in your component of choice
   // in this case, let's keep track of 'purpose' variable from our contract
   const purpose = useContractReader(readContracts, "YourContract", "purpose");
 
   return (
     <div>
-      <BondForm />
+      <BondForm userSigner={userSigner} contractAddress={contractAddress} />
     </div>
   );
 }

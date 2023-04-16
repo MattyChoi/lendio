@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ethers } from "ethers";
+import dealFactoryABI from "../contracts/DealFactory.sol/DealFactory.json";
 
 const styles = {
   form: {
@@ -59,17 +61,34 @@ const styles = {
   },
 };
 
-const BondForm = () => {
+const BondForm = (userSigner, contractAddress) => {
   const [hover, setHover] = useState(false);
+  const [date, setDate] = useState(Date.now());
+  const [curr, setCur] = useState("USDC");
+  const [princ, setPrinc] = useState(0);
+  const [coup, setCoup] = useState(0);
+  const [numBonds, setNumBonds] = useState(0);
 
-  const handleSubmit = event => {
-    event.preventDefault();
-    // Process form data and handle submission logic
+  // interact with smart contract here
+  const handleSubmit = e => {
+    e.preventDefault();
+    console.log(typeof date, curr, princ, coup, numBonds);
+
+    console.log(typeof dealFactoryABI);
+    // get contract variable
+    const dealContract = new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner);
+
+    console.log(dealContract);
   };
 
-  const renderInputWithPostfix = (id, type, postfix) => {
+  const renderInputWithPostfix = (id, type, postfix, hook) => {
     return (
-      <div style={styles.inputWrapper}>
+      <div
+        style={styles.inputWrapper}
+        onChange={e => {
+          hook(e.target.valueAsNumber);
+        }}
+      >
         <input
           id={id}
           type={type}
@@ -85,16 +104,32 @@ const BondForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={styles.form}>
+    <form onSubmit={handleSubmit} action="" style={styles.form}>
       <label htmlFor="maturityDate" style={styles.label}>
         Maturity Date
       </label>
-      <input type="datetime-local" id="maturityDate" style={styles.input} required />
+      <input
+        type="datetime-local"
+        id="maturityDate"
+        style={styles.input}
+        onChange={e => {
+          setDate(e.target.valueAsDate);
+        }}
+        required
+      />
 
       <label htmlFor="currency" style={styles.label}>
         Currency Denomination
       </label>
-      <select id="currency" style={styles.input} defaultValue="USDC" required>
+      <select
+        id="currency"
+        style={styles.input}
+        defaultValue="USDC"
+        onChange={e => {
+          setCur(e.target.value);
+        }}
+        required
+      >
         <option value="USDC">USDC</option>
         {/* Add other currency options here */}
       </select>
@@ -102,17 +137,17 @@ const BondForm = () => {
       <label htmlFor="principal" style={styles.label}>
         Principal
       </label>
-      {renderInputWithPostfix("principal", "number", "USDC")}
+      {renderInputWithPostfix("principal", "number", "USDC", setPrinc)}
 
       <label htmlFor="coupon" style={styles.label}>
         Coupon (integer rate)
       </label>
-      {renderInputWithPostfix("coupon", "number", "%")}
+      {renderInputWithPostfix("coupon", "number", "%", setCoup)}
 
       <label htmlFor="numberOfBonds" style={styles.label}>
         Number of Bonds
       </label>
-      {renderInputWithPostfix("numberOfBonds", "number", "Bonds")}
+      {renderInputWithPostfix("numberOfBonds", "number", "Bonds", setNumBonds)}
 
       <button
         type="submit"
