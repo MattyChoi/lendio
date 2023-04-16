@@ -16,8 +16,8 @@ contract BondManager is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
     constructor() ERC1155("") {}
 
     function mint(address account, uint256 amount) public onlyOwner returns (uint256) {
-        _mint(account, _currentID, amount, "");
         _currentID += 1;
+        _mint(account, _currentID, amount, "");
         return _currentID; // We do not want an ID of 0
     }
 
