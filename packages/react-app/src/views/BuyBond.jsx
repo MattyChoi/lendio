@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
 
-import dealFactoryABI from "contracts/DealFactory.sol/DealFactory.json";
+import dealFactoryABI from "../contracts/DealFactory.sol/DealFactory.json";
 
 function BuyBond(userSigner, contractAddress) {
   const { bondId } = useParams();
