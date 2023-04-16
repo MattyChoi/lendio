@@ -269,6 +269,7 @@ function App(props) {
           // Set the contract data in the state
           setNumDeals(data.toNumber());
           console.log("Just got the number of deals: ", data.toNumber());
+          return data.toNumber();
         } catch (error) {
           console.error("Failed to fetch contract data:", error);
         }
@@ -321,8 +322,8 @@ function App(props) {
         return deals;
       };
 
-      getNumDeals().then(async () => {
-        const deals = await callAsyncFunctions(numDeals);
+      getNumDeals().then(async num => {
+        const deals = await callAsyncFunctions(num);
         setDealArr(deals);
       });
     }
