@@ -54,12 +54,4 @@ contract DealFactory {
     function releaseBond(address to, uint256 amount) external onlyDeal {
         BondManager(manager).safeTransferFrom(msg.sender, to, bonds[msg.sender], amount, "");
     }
-
-    // function redeemBond(address _account, uint256 _amountPer, uint256 _uncollected) external onlyDeal {
-    //     uint256 amount = BondManager(manager).balanceOf(_account, bonds[msg.sender]) + _uncollected;
-    //     BondManager(manager).burn(_account, bonds[msg.sender], amount);
-    //     ERC20 token = ERC20(Deal(msg.sender).denom());
-    //     // transfer USD from contract to sender
-    //     token.transferFrom(msg.sender, _account, amount * _amountPer);
-    // }
 }
