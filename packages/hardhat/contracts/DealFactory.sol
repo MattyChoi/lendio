@@ -46,7 +46,7 @@ contract DealFactory {
         );
         uint256 tokenID = BondManager(manager).mint(deal, _supply);
         bonds[deal] = tokenID;
-        address.push(deal);
+        deals.push(deal);
         emit LaunchDeal(deal, _denom, _principal, _coupon, _maturity, _supply);
     }
 
