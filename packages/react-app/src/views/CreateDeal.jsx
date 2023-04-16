@@ -1,10 +1,10 @@
 import React from "react";
 import { BondForm } from "../components";
 
-function CreateDeal({ contractAddress, userSigner }) {
+function CreateDeal({ factoryContract, userSigner }) {
   return (
     <div>
-      <BondForm userSigner={userSigner} contractAddress={contractAddress} />
+      <BondForm userSigner={userSigner} factoryContract={factoryContract} />
     </div>
   );
 }

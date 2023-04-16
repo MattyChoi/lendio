@@ -20,6 +20,9 @@ import { getRPCPollTime, Transactor, Web3ModalSetup } from "./helpers";
 import { Home, Listings, CreateDeal, ManageDeal, BuyBond } from "./views";
 import { useStaticJsonRPC, useGasPrice } from "./hooks";
 
+import dealFactoryABI from "./contracts/DealFactory.sol/DealFactory.json";
+import dealABI from "./contracts/Deal.sol/Deal.json";
+
 const { ethers } = require("ethers");
 /*
     Welcome to 🏗 scaffold-eth !
@@ -44,7 +47,7 @@ const { ethers } = require("ethers");
 const initialNetwork = NETWORKS.fujiAvalanche; // <------- select your target frontend network (localhost, goerli, xdai, mainnet)
 
 // address of your contract
-const contractAddress = "0x983138257cEac59cc47a89A4C5b6a613F342d434";
+const contractAddress = "0x5b6e10c3BAfF08540D6DE72Da5f8dE9118eF25f4";
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -249,6 +252,66 @@ function App(props) {
 
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
+  // get dealfactory contract
+  const factoryContract = new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner);
+
+  // get all current deal contracts that have been made
+  const [numDeals, setNumDeals] = useState(0);
+  const [deals, setDeals] = useState([]);
+
+  useEffect(() => {
+    // async function getNumDeals () {
+    //   const length = await factoryContract.length();
+    //   return length.toNumber();
+    // }
+    // console.log(getNumDeals());
+    // setNumDeals(getNumDeals());
+
+    async function getDealParams(i) {
+      let params;
+      try {
+        const address = await factoryContract.deals(i);
+        console.log(address);
+        const dealContract = new ethers.Contract(address, dealABI.abi, userSigner);
+
+        // Deal constants
+        // address public denom;
+        // uint256 public principal;
+        // uint256 public coupon;
+        // uint256 public maturity;
+        // uint256 public supply;
+        // uint256 public amtLeft;
+        // address public admin;
+        // uint256 public repaymentAmt;
+        params = {
+          address: address,
+          denom: await dealContract.denom(),
+          principal: await dealContract.principal(),
+          coupon: await dealContract.coupon(),
+          maturity: await dealContract.maturity(),
+          supply: await dealContract.supply(),
+          amtLeft: await dealContract.amtLeft(),
+        };
+      } catch (err) {
+        console.log(i);
+      }
+      return params;
+    }
+    let dealArr = [];
+    for (let i = 0; i < 3; i++) {
+      try {
+        let params = getDealParams(i);
+        dealArr.push(params);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    setDeals(dealArr);
+  }, []);
+
+  console.log("Number of deal contracts : ", numDeals);
+  console.log(deals);
+
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -345,13 +408,13 @@ function App(props) {
           <BuyBond userSigner={userSigner} contractAddress={contractAddress} />
         </Route>
         <Route path="/listings">
-          <Listings yourLocalBalance={yourLocalBalance} />
+          <Listings yourLocalBalance={yourLocalBalance} deals={deals} />
         </Route>
         <Route path="/managedeal">
           <ManageDeal yourLocalBalance={yourLocalBalance} />
         </Route>
         <Route path="/createdeal">
-          <CreateDeal userSigner={userSigner} contractAddress={contractAddress} />
+          <CreateDeal userSigner={userSigner} factoryContract={factoryContract} />
         </Route>
       </Switch>
     </div>

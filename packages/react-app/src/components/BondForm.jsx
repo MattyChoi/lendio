@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { ethers } from "ethers";
-import dealFactoryABI from "../contracts/DealFactory.sol/DealFactory.json";
 
 const styles = {
   form: {
@@ -61,7 +59,7 @@ const styles = {
   },
 };
 
-const BondForm = ({ userSigner, contractAddress }) => {
+const BondForm = ({ factoryContract }) => {
   const [hover, setHover] = useState(false);
   const [date, setDate] = useState(Date.now());
   const [curr, setCur] = useState("USDC");
@@ -70,19 +68,20 @@ const BondForm = ({ userSigner, contractAddress }) => {
   const [numBonds, setNumBonds] = useState(0);
 
   // interact with smart contract here
-  const handleSubmit = e => {
+  async function handleSubmit(e) {
     e.preventDefault();
 
-    // get contract variable
-    const dealContract = new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner);
-
     // DAO can launch deal using the deal contract
-    try {
-      dealContract.launchDeal("0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d", princ, coup, date.getTime(), numBonds);
-    } catch (err) {
-      console.log("Error: ", err);
-    }
-  };
+    (async () => {
+      await factoryContract.launchDeal(
+        "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+        princ,
+        coup,
+        date.getTime(),
+        numBonds,
+      );
+    })();
+  }
 
   const renderInputWithPostfix = (id, type, postfix, hook) => {
     return (
