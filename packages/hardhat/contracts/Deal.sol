@@ -60,7 +60,7 @@ contract Deal is ERC1155Holder {
 
     // PRE-SALE FUNCTIONS (status=0)
 
-    function calcAtomicPrincipal(uint256 numBonds) public view returns (uint256) {
+    function calcAtomicPrice(uint256 numBonds) public view returns (uint256) {
         return numBonds * principal * 10 ** ERC20(denom).decimals();
     }
 
@@ -68,7 +68,7 @@ contract Deal is ERC1155Holder {
     function deposit(uint256 numBonds) external onlyStatus(0) {
         require(numBonds <= amtLeft, "There are not enough bonds left");
         ERC20 token = ERC20(denom);
-        token.transferFrom(msg.sender, address(this), calcAtomicPrincipal(numBonds));
+        token.transferFrom(msg.sender, address(this), calcAtomicPrice(numBonds));
         amtLeft -= numBonds;
         creditors[msg.sender] += numBonds;
     }
@@ -112,7 +112,7 @@ contract Deal is ERC1155Holder {
     // Move deposited cash back to creditor
     function withdraw() external onlyStatus(2) {
         ERC20 token = ERC20(denom);
-        token.transfer(msg.sender, calcAtomicPrincipal(creditors[msg.sender]));
+        token.transfer(msg.sender, calcAtomicPrice(creditors[msg.sender]));
         creditors[msg.sender] = 0;
     }
 }

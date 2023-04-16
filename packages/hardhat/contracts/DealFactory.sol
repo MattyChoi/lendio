@@ -11,8 +11,8 @@ import "./Deal.sol";
 /// @author Matthew Choi, Brian Eide, Zachary Mabie, Timothy Tu
 contract DealFactory {
     mapping(address => uint256) public bonds; // address -> token ID
-
     address[] public deals;
+    uint256 public length;
 
     address public immutable manager;
 
@@ -47,6 +47,7 @@ contract DealFactory {
         uint256 tokenID = BondManager(manager).mint(deal, _supply);
         bonds[deal] = tokenID;
         deals.push(deal);
+        length += 1;
         emit LaunchDeal(deal, _denom, _principal, _coupon, _maturity, _supply);
     }
 
