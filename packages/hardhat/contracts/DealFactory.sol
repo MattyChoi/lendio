@@ -52,7 +52,7 @@ contract DealFactory {
     }
 
     function releaseBond(address to, uint256 amount) external onlyDeal {
-        BondManager(manager).safeTransferFrom(address(this), to, bonds[msg.sender], amount, "");
+        BondManager(manager).safeTransferFrom(msg.sender, to, bonds[msg.sender], amount, "");
     }
 
     function redeemBond(address _account, uint256 _amountPer, uint256 _uncollected) external onlyDeal {
