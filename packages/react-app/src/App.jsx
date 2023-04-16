@@ -44,7 +44,7 @@ const { ethers } = require("ethers");
 const initialNetwork = NETWORKS.fujiAvalanche; // <------- select your target frontend network (localhost, goerli, xdai, mainnet)
 
 // address of your contract
-const contractAddress = "0x95a3ba80530b6991872dF2Eaf5451c4746Ec1894";
+const contractAddress = "0x983138257cEac59cc47a89A4C5b6a613F342d434";
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
