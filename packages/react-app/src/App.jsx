@@ -424,8 +424,6 @@ function App(props) {
         </Route>
       </Switch>
 
-      <ThemeSwitch />
-
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
       <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
         <Row align="middle" gutter={[4, 4]}>

@@ -63,10 +63,25 @@ function BuyBond() {
 
   const [bondsToBuy, setBondsToBuy] = useState(0);
   const [usdcDeposited, setUsdcDeposited] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const handleDepositUSDC = () => {
-    // Handle depositing USDC logic here
-    setUsdcDeposited(true);
+    // Check if the value in the bondsToBuy input is an integer greater than 0
+    if (bondsToBuy <= 0 || !Number.isInteger(bondsToBuy)) {
+      alert("Please enter a valid number of bonds greater than 0.");
+      return;
+    }
+    const confirmation = window.confirm(`Are you sure you want to deposit USDC to buy ${bondsToBuy} bonds?`);
+
+    if (confirmation) {
+      // Handle depositing USDC logic here
+
+      setUsdcDeposited(true);
+      setBondsToBuy(0);
+      setIsSuccessModalOpen(true);
+    } else {
+      // User clicked Cancel; do nothing
+    }
   };
 
   const handleWithdrawUSDC = () => {
