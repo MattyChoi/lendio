@@ -151,6 +151,7 @@ const BondForm = (userSigner, contractAddress) => {
 
       <button
         type="submit"
+        onClick={handleSubmit}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         style={{

@@ -5,3 +5,4 @@ export { default as Subgraph } from "./Subgraph";
 export { default as Listings } from "./Listings";
 export { default as CreateDeal } from "./CreateDeal";
 export { default as ManageDeal } from "./ManageDeal";
+export { default as BuyBond } from "./BuyBond";
