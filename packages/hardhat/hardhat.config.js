@@ -24,7 +24,7 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "localhost";
+const defaultNetwork = "goerliArbitrum";
 
 function mnemonic() {
   try {
@@ -60,6 +60,9 @@ module.exports = {
   // Follow the directions, and uncomment the network you wish to deploy to.
 
   networks: {
+    hardhat: {
+      chainId: 1337 // We set 1337 to make interacting with MetaMask simpler
+    },
     localhost: {
       url: "http://127.0.0.1:8545/",
       /*
@@ -277,7 +280,7 @@ module.exports = {
   solidity: {
     compilers: [
       {
-        version: "0.8.4",
+        version: "0.8.9",
         settings: {
           optimizer: {
             enabled: true,

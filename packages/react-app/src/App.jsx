@@ -53,7 +53,10 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, goerli, xdai, mainnet)
+const initialNetwork = NETWORKS.goerliArbitrum; // <------- select your target frontend network (localhost, goerli, xdai, mainnet)
+
+// address of your contract
+const contractAddress = "0x95a3ba80530b6991872dF2Eaf5451c4746Ec1894";
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -365,7 +368,7 @@ function App(props) {
           <ManageDeal yourLocalBalance={yourLocalBalance} />
         </Route>
         <Route path="/createdeal">
-          <CreateDeal yourLocalBalance={yourLocalBalance} />
+          <CreateDeal yourLocalBalance={yourLocalBalance} userSigner={userSigner} contractAddress={contractAddress} />
         </Route>
         <Route path="/hints">
           <Hints
