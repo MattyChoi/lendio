@@ -443,9 +443,9 @@ function BuyBond({ userSigner, deals }) {
   useEffect(() => {
     async function getStatus() {
       const status = await dealContract.status();
-      if (status.toNumber() == 2) {
+      if (status.toNumber() == 1) {
         setIsDealExectued(true);
-      } else if (status.toNumber() == 1) {
+      } else if (status.toNumber() == 2) {
         setIsDealCancelled(true);
       }
       console.log("Status: ", status.toNumber());
