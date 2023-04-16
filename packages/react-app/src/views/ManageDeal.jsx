@@ -17,7 +17,7 @@ function ManageDeal({ userSigner, deals }) {
   console.log(bondData);
 
   // get the deal contract to make transactions
-  const dealContract = new ethers.Contract(bondData.address, dealABI.abi, userSigner);
+  const dealContract = bondData != null ? new ethers.Contract(bondData.address, dealABI.abi, userSigner) : null;
 
   // Sample bond data
   // const [bondData, setBondData] = useState({
@@ -64,7 +64,7 @@ function ManageDeal({ userSigner, deals }) {
           <button onClick={handleCancel}>Cancel</button>
         </div>
       ) : (
-        <p>No bond data available</p>
+        <p></p>
       )}
     </div>
   );
