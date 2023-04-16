@@ -20,7 +20,6 @@ contract Deal is ERC1155Holder {
     uint256 public amtLeft;
     address public admin;
     address private dealFactory;
-    address private bondManager;
     uint256 public repaymentAmt;
 
     // Instance data
@@ -29,7 +28,6 @@ contract Deal is ERC1155Holder {
 
     constructor(
         address _dealFactory, // address of DealFactory contract
-        address _bondManager, // address of BondManager contract
         address _denom, // currency token address
         uint256 _principal,
         uint256 _coupon, // interest rate (whole number)
@@ -47,7 +45,6 @@ contract Deal is ERC1155Holder {
         amtLeft = _supply;
         admin = _admin;
         dealFactory = _dealFactory;
-        bondManager = _bondManager;
         repaymentAmt = _principal * (100 + _coupon); // repayment * 100
     }
 
