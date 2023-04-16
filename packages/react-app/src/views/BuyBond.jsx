@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ethers } from "ethers";
 
@@ -9,7 +9,8 @@ function BuyBond({ userSigner, deals }) {
 
   const [bondsToBuy, setBondsToBuy] = useState(0);
   const [usdcDeposited, setUsdcDeposited] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isDealCancelled, setIsDealCancelled] = useState(false);
+  const [isDealExectued, setIsDealExectued] = useState(false);
   const [usdcApproved, setUsdcApproved] = useState(false);
 
   // Sample bond data, replace with actual data from your data source
@@ -222,7 +223,6 @@ function BuyBond({ userSigner, deals }) {
 
       setUsdcDeposited(true);
       setBondsToBuy(0);
-      setIsSuccessModalOpen(true);
     }
   };
 
@@ -233,9 +233,236 @@ function BuyBond({ userSigner, deals }) {
   };
 
   const handleRedeemBond = async () => {
+    const erc1155abi = [
+      { inputs: [], stateMutability: "nonpayable", type: "constructor" },
+      {
+        anonymous: false,
+        inputs: [
+          { indexed: true, internalType: "address", name: "account", type: "address" },
+          { indexed: true, internalType: "address", name: "operator", type: "address" },
+          { indexed: false, internalType: "bool", name: "approved", type: "bool" },
+        ],
+        name: "ApprovalForAll",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          { indexed: true, internalType: "address", name: "previousOwner", type: "address" },
+          { indexed: true, internalType: "address", name: "newOwner", type: "address" },
+        ],
+        name: "OwnershipTransferred",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          { indexed: true, internalType: "address", name: "operator", type: "address" },
+          { indexed: true, internalType: "address", name: "from", type: "address" },
+          { indexed: true, internalType: "address", name: "to", type: "address" },
+          { indexed: false, internalType: "uint256[]", name: "ids", type: "uint256[]" },
+          { indexed: false, internalType: "uint256[]", name: "values", type: "uint256[]" },
+        ],
+        name: "TransferBatch",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          { indexed: true, internalType: "address", name: "operator", type: "address" },
+          { indexed: true, internalType: "address", name: "from", type: "address" },
+          { indexed: true, internalType: "address", name: "to", type: "address" },
+          { indexed: false, internalType: "uint256", name: "id", type: "uint256" },
+          { indexed: false, internalType: "uint256", name: "value", type: "uint256" },
+        ],
+        name: "TransferSingle",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          { indexed: false, internalType: "string", name: "value", type: "string" },
+          { indexed: true, internalType: "uint256", name: "id", type: "uint256" },
+        ],
+        name: "URI",
+        type: "event",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "account", type: "address" },
+          { internalType: "uint256", name: "id", type: "uint256" },
+        ],
+        name: "balanceOf",
+        outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address[]", name: "accounts", type: "address[]" },
+          { internalType: "uint256[]", name: "ids", type: "uint256[]" },
+        ],
+        name: "balanceOfBatch",
+        outputs: [{ internalType: "uint256[]", name: "", type: "uint256[]" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "account", type: "address" },
+          { internalType: "uint256", name: "id", type: "uint256" },
+          { internalType: "uint256", name: "value", type: "uint256" },
+        ],
+        name: "burn",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "account", type: "address" },
+          { internalType: "uint256[]", name: "ids", type: "uint256[]" },
+          { internalType: "uint256[]", name: "values", type: "uint256[]" },
+        ],
+        name: "burnBatch",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
+        name: "exists",
+        outputs: [{ internalType: "bool", name: "", type: "bool" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "account", type: "address" },
+          { internalType: "address", name: "operator", type: "address" },
+        ],
+        name: "isApprovedForAll",
+        outputs: [{ internalType: "bool", name: "", type: "bool" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "account", type: "address" },
+          { internalType: "uint256", name: "amount", type: "uint256" },
+        ],
+        name: "mint",
+        outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "owner",
+        outputs: [{ internalType: "address", name: "", type: "address" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      { inputs: [], name: "renounceOwnership", outputs: [], stateMutability: "nonpayable", type: "function" },
+      {
+        inputs: [
+          { internalType: "address", name: "from", type: "address" },
+          { internalType: "address", name: "to", type: "address" },
+          { internalType: "uint256[]", name: "ids", type: "uint256[]" },
+          { internalType: "uint256[]", name: "amounts", type: "uint256[]" },
+          { internalType: "bytes", name: "data", type: "bytes" },
+        ],
+        name: "safeBatchTransferFrom",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "from", type: "address" },
+          { internalType: "address", name: "to", type: "address" },
+          { internalType: "uint256", name: "id", type: "uint256" },
+          { internalType: "uint256", name: "amount", type: "uint256" },
+          { internalType: "bytes", name: "data", type: "bytes" },
+        ],
+        name: "safeTransferFrom",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          { internalType: "address", name: "operator", type: "address" },
+          { internalType: "bool", name: "approved", type: "bool" },
+        ],
+        name: "setApprovalForAll",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [{ internalType: "bytes4", name: "interfaceId", type: "bytes4" }],
+        name: "supportsInterface",
+        outputs: [{ internalType: "bool", name: "", type: "bool" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
+        name: "totalSupply",
+        outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [{ internalType: "address", name: "newOwner", type: "address" }],
+        name: "transferOwnership",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+        name: "uri",
+        outputs: [{ internalType: "string", name: "", type: "string" }],
+        stateMutability: "view",
+        type: "function",
+      },
+    ];
+    const bond = "0x5709B4ef60229E0022929042244e16D8641654Eb";
+    const bondContract = new ethers.Contract(bond, erc1155abi, userSigner);
+
+    // approve
+    const tx = await bondContract.setApprovalForAll(dealContract.address, true);
+    await tx.wait();
+
     // Handle redeeming bond logic here
     await dealContract.redeemBond();
   };
+
+  useEffect(() => {
+    async function getStatus() {
+      const status = await dealContract.status();
+      if (status.toNumber() == 2) {
+        setIsDealExectued(true);
+      } else if (status.toNumber() == 1) {
+        setIsDealCancelled(true);
+      }
+      console.log("Status: ", status.toNumber());
+    }
+    if (dealContract) {
+      getStatus();
+    }
+  }, []);
+
+  // const approveBool = isDealExectued || usdcApproved;
+  // const depositeBool = isDealExectued || !usdcApproved;
+  // const withdrawBool = !isDealCancelled;
+  // const redeemBool = !isDealExectued;
+  const approveBool = false;
+  const depositeBool = false;
+  const redeemBool = false;
+  const withdrawBool = false;
 
   return (
     <div style={styles.container}>
@@ -260,16 +487,32 @@ function BuyBond({ userSigner, deals }) {
             />
           </div>
           <br />
-          <button style={{ ...styles.button }} onClick={handleApproveUSDC} disabled={false}>
+          <button
+            style={{ ...styles.button, ...(approveBool ? styles.buttonDisabled : {}) }}
+            onClick={handleApproveUSDC}
+            disabled={approveBool}
+          >
             Approve USDC
           </button>
-          <button style={{ ...styles.button }} onClick={handleDepositUSDC} disabled={false}>
+          <button
+            style={{ ...styles.button, ...(depositeBool ? styles.buttonDisabled : {}) }}
+            onClick={handleDepositUSDC}
+            disabled={depositeBool}
+          >
             Deposit USDC
           </button>
-          <button style={{ ...styles.button }} onClick={handleWithdrawUSDC} disabled={false}>
+          <button
+            style={{ ...styles.button, ...(withdrawBool ? styles.buttonDisabled : {}) }}
+            onClick={handleWithdrawUSDC}
+            disabled={withdrawBool}
+          >
             Withdraw USDC
           </button>
-          <button style={{ ...styles.button }} onClick={handleRedeemBond} disabled={false}>
+          <button
+            style={{ ...styles.button, ...(redeemBool ? styles.buttonDisabled : {}) }}
+            onClick={handleRedeemBond}
+            disabled={redeemBool}
+          >
             Redeem bond
           </button>
         </div>
