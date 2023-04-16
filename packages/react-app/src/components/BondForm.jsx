@@ -71,15 +71,20 @@ const BondForm = ({ factoryContract }) => {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    console.log(princ, coup, date.getTime(), numBonds);
     // DAO can launch deal using the deal contract
     (async () => {
-      await factoryContract.launchDeal(
-        "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
-        princ,
-        coup,
-        date.getTime(),
-        numBonds,
-      );
+      try {
+        await factoryContract.launchDeal(
+          "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+          princ,
+          coup,
+          date.getTime(),
+          numBonds,
+        );
+      } catch (err) {
+        console.log("Error: ", err);
+      }
     })();
   }
 

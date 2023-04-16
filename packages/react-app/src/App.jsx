@@ -256,54 +256,81 @@ function App(props) {
   const factoryContract = new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner);
 
   // get all current deal contracts that have been made
-  async function getNumDeals() {
-    return await factoryContract.length().toNumber();
-  }
-  const numDeals = getNumDeals();
+  const [numDeals, setNumDeals] = useState(0);
+  const [dealArr, setDealArr] = useState([]);
 
-  async function getDealParams(i) {
-    let params;
-    try {
-      const address = await factoryContract.deals(i);
-      console.log(address);
-      const dealContract = new ethers.Contract(address, dealABI.abi, userSigner);
+  useEffect(() => {
+    async function fetchDealData() {
+      const getNumDeals = async () => {
+        try {
+          // Fetch the data from the contract
+          const data = await factoryContract.length();
 
-      // Deal constants
-      // address public denom;
-      // uint256 public principal;
-      // uint256 public coupon;
-      // uint256 public maturity;
-      // uint256 public supply;
-      // uint256 public amtLeft;
-      // address public admin;
-      // uint256 public repaymentAmt;
-      params = {
-        address: address,
-        denom: await dealContract.denom(),
-        principal: await dealContract.principal(),
-        coupon: await dealContract.coupon(),
-        maturity: await dealContract.maturity(),
-        supply: await dealContract.supply(),
-        amtLeft: await dealContract.amtLeft(),
+          // Set the contract data in the state
+          setNumDeals(data.toNumber());
+          console.log("Just got the number of deals: ", data.toNumber());
+        } catch (error) {
+          console.error("Failed to fetch contract data:", error);
+        }
       };
-    } catch (err) {
-      console.log(i);
-    }
-    return params;
-  }
 
-  let deals = [];
-  for (let i = 0; i < numDeals; i++) {
-    try {
-      let params = getDealParams(i);
-      deals.push(params);
-    } catch (err) {
-      console.log(err);
+      async function getDealParams(i) {
+        let params;
+        try {
+          const address = await factoryContract.deals(i);
+          console.log(address);
+          const dealContract = new ethers.Contract(address, dealABI.abi, userSigner);
+
+          // Deal constants
+          // address public denom;
+          // uint256 public principal;
+          // uint256 public coupon;
+          // uint256 public maturity;
+          // uint256 public supply;
+          // uint256 public amtLeft;
+          // address public admin;
+          // uint256 public repaymentAmt;
+          const denom = await dealContract.denom();
+          const principal = await dealContract.principal();
+          const coupon = await dealContract.coupon();
+          const maturity = await dealContract.maturity();
+          const supply = await dealContract.supply();
+          const amtLeft = await dealContract.amtLeft();
+
+          params = {
+            address: address,
+            denom: denom,
+            principal: principal.toNumber(),
+            coupon: coupon.toNumber(),
+            maturity: maturity.toNumber(),
+            supply: supply.toNumber(),
+            amtLeft: amtLeft.toNumber(),
+          };
+        } catch (err) {
+          console.log(i);
+        }
+        return params;
+      }
+
+      const callAsyncFunctions = async length => {
+        let deals = [];
+        for (let i = 1; i <= length; i++) {
+          let dealParams = await getDealParams(i);
+          deals.push(dealParams);
+        }
+        return deals;
+      };
+
+      getNumDeals().then(async () => {
+        const deals = await callAsyncFunctions(numDeals);
+        setDealArr(deals);
+      });
     }
-  }
+    fetchDealData();
+  }, []);
 
   console.log("Number of deal contracts : ", numDeals);
-  console.log(deals);
+  console.log(dealArr);
 
   return (
     <div className="App">
@@ -401,7 +428,7 @@ function App(props) {
           <BuyBond userSigner={userSigner} contractAddress={contractAddress} />
         </Route>
         <Route path="/listings">
-          <Listings yourLocalBalance={yourLocalBalance} deals={deals} />
+          <Listings yourLocalBalance={yourLocalBalance} deals={dealArr} />
         </Route>
         <Route path="/managedeal">
           <ManageDeal yourLocalBalance={yourLocalBalance} />
