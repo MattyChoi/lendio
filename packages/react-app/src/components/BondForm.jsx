@@ -61,7 +61,7 @@ const styles = {
   },
 };
 
-const BondForm = (userSigner, contractAddress) => {
+const BondForm = ({ userSigner, contractAddress }) => {
   const [hover, setHover] = useState(false);
   const [date, setDate] = useState(Date.now());
   const [curr, setCur] = useState("USDC");
@@ -74,10 +74,14 @@ const BondForm = (userSigner, contractAddress) => {
     e.preventDefault();
 
     // get contract variable
-    const dealContract = new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner.userSigner);
+    const dealContract = new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner);
 
     // DAO can launch deal using the deal contract
-    dealContract.launchDeal("0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d", princ, coup, date.getTime(), numBonds);
+    try {
+      dealContract.launchDeal("0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d", princ, coup, date.getTime(), numBonds);
+    } catch (err) {
+      console.log("Error: ", err);
+    }
   };
 
   const renderInputWithPostfix = (id, type, postfix, hook) => {
