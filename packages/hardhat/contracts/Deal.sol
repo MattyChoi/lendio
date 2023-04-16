@@ -45,7 +45,7 @@ contract Deal is ERC1155Holder {
         amtLeft = _supply;
         admin = _admin;
         dealFactory = _dealFactory;
-        repaymentAmt = _principal * (100 + _coupon); // repayment * 100
+        repaymentAmt = (_principal * (100 + _coupon)) * 10 ** (ERC20(_denom).decimals() - 2); // repayment in atomic units
     }
 
     modifier onlyAdmin() {
@@ -60,11 +60,15 @@ contract Deal is ERC1155Holder {
 
     // PRE-SALE FUNCTIONS (status=0)
 
+    function calcAtomicPrincipal(uint256 numBonds) public view returns (uint256) {
+        return numBonds * principal * 10 ** ERC20(denom).decimals();
+    }
+
     // how many bond tokens the creditor wants to buy
     function deposit(uint256 numBonds) external onlyStatus(0) {
         require(numBonds <= amtLeft, "There are not enough bonds left");
         ERC20 token = ERC20(denom);
-        token.transferFrom(msg.sender, address(this), numBonds * principal * 10 ** token.decimals());
+        token.transferFrom(msg.sender, address(this), calcAtomicPrincipal(numBonds));
         amtLeft -= numBonds;
         creditors[msg.sender] += numBonds;
     }
@@ -88,20 +92,19 @@ contract Deal is ERC1155Holder {
         creditors[msg.sender] = 0;
     }
 
+    function calcPricePer() public view returns (uint256) {
+        return principal * (100 + coupon) * 10 ** (ERC20(denom).decimals() - 2);
+    }
+
     function redeemBond() external onlyStatus(1) {
         // Get interest payment
         require(block.timestamp >= maturity, "The bond has not matured yet");
         ERC20 token = ERC20(denom);
-        // the repayment amount is shifted to the left 2 places. send repaymentAmt * 10 ^ (decimals - 2)
         require(
-            token.balanceOf(address(this)) == repaymentAmt * 10 ** (token.decimals() - 2),
+            token.balanceOf(address(this)) == repaymentAmt, 
             "The deal contract has not yet been funded"
         );
-        DealFactory(dealFactory).redeemBond(
-            msg.sender, 
-            principal * (100 + coupon) * 10 ** (token.decimals() - 2), 
-            creditors[msg.sender]
-        );
+        DealFactory(dealFactory).redeemBond(msg.sender, calcPricePer(), creditors[msg.sender]);
     }
 
     // CANCELED FUNCTIONS (status=2)
@@ -109,7 +112,7 @@ contract Deal is ERC1155Holder {
     // Move deposited cash back to creditor
     function withdraw() external onlyStatus(2) {
         ERC20 token = ERC20(denom);
-        token.transfer(msg.sender, creditors[msg.sender] * principal * 10 ** token.decimals());
+        token.transfer(msg.sender, calcAtomicPrincipal(creditors[msg.sender]));
         creditors[msg.sender] = 0;
     }
 }
