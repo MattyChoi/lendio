@@ -8,7 +8,7 @@ import {
   // useOnBlock,
   useUserProviderAndSigner,
 } from "eth-hooks";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
 import "./App.css";
 import { Account, Contract, Header, NetworkDisplay, FaucetHint, NetworkSwitch } from "./components";
@@ -253,7 +253,9 @@ function App(props) {
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
   // get dealfactory contract
-  const factoryContract = new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner);
+  const factoryContract = useMemo(() => {
+    return new ethers.Contract(contractAddress, dealFactoryABI.abi, userSigner);
+  }, [userSigner]);
 
   // get all current deal contracts that have been made
   const [numDeals, setNumDeals] = useState(0);
