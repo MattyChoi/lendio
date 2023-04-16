@@ -124,7 +124,7 @@ contract Deal is ERC1155Holder {
         require(block.timestamp >= maturity, "The bond has not matured yet");
         ERC20 token = ERC20(denom);
         require(
-            token.balanceOf(address(this)) == repaymentAmt, 
+            token.balanceOf(address(this)) >= repaymentAmt, 
             "The deal contract has not yet been funded"
         );
         DealFactory df = DealFactory(dealFactory);
