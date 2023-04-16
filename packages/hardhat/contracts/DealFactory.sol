@@ -42,7 +42,7 @@ contract DealFactory {
         uint256 _supply
     ) external {
         address deal = address(
-            new Deal(address(this), _denom, _principal, _coupon, _maturity, _supply, msg.sender)
+            new Deal(address(this), manager, _denom, _principal, _coupon, _maturity, _supply, msg.sender)
         );
         uint256 tokenID = BondManager(manager).mint(deal, _supply);
         bonds[deal] = tokenID;
@@ -55,11 +55,11 @@ contract DealFactory {
         BondManager(manager).safeTransferFrom(msg.sender, to, bonds[msg.sender], amount, "");
     }
 
-    function redeemBond(address _account, uint256 _amountPer, uint256 _uncollected) external onlyDeal {
-        uint256 amount = BondManager(manager).balanceOf(_account, bonds[msg.sender]) + _uncollected;
-        BondManager(manager).burn(_account, bonds[msg.sender], amount);
-        ERC20 token = ERC20(Deal(msg.sender).denom());
-        // transfer USD from contract to sender
-        token.transfer(msg.sender, amount * _amountPer);
-    }
+    // function redeemBond(address _account, uint256 _amountPer, uint256 _uncollected) external onlyDeal {
+    //     uint256 amount = BondManager(manager).balanceOf(_account, bonds[msg.sender]) + _uncollected;
+    //     BondManager(manager).burn(_account, bonds[msg.sender], amount);
+    //     ERC20 token = ERC20(Deal(msg.sender).denom());
+    //     // transfer USD from contract to sender
+    //     token.transferFrom(msg.sender, _account, amount * _amountPer);
+    // }
 }

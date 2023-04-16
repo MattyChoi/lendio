@@ -19,7 +19,8 @@ contract Deal is ERC1155Holder {
     uint256 public supply;
     uint256 public amtLeft;
     address public admin;
-    address private dealFactory;
+    address public dealFactory;
+    address public bondManager;
     uint256 public repaymentAmt;
 
     // Instance data
@@ -28,6 +29,7 @@ contract Deal is ERC1155Holder {
 
     constructor(
         address _dealFactory, // address of DealFactory contract
+        address _bondManager, // address of BondManager
         address _denom, // currency token address
         uint256 _principal,
         uint256 _coupon, // interest rate (whole number)
@@ -45,7 +47,8 @@ contract Deal is ERC1155Holder {
         amtLeft = _supply;
         admin = _admin;
         dealFactory = _dealFactory;
-        repaymentAmt = (_principal * (100 + _coupon)) * 10 ** (ERC20(_denom).decimals() - 2); // repayment in atomic units
+        bondManager = _bondManager;
+        repaymentAmt = (_supply * _principal * (100 + _coupon)) * 10 ** (ERC20(_denom).decimals() - 2); // repayment in atomic units
     }
 
     modifier onlyAdmin() {
@@ -88,6 +91,7 @@ contract Deal is ERC1155Holder {
     function collectBond() external onlyStatus(1) {
         // Get the bond
         require(creditors[msg.sender] > 0, "No bonds to collect");
+        BondManager(bondManager).setApprovalForAll(dealFactory, true);
         DealFactory(dealFactory).releaseBond(msg.sender, creditors[msg.sender]);
         creditors[msg.sender] = 0;
     }
@@ -104,7 +108,14 @@ contract Deal is ERC1155Holder {
             token.balanceOf(address(this)) == repaymentAmt, 
             "The deal contract has not yet been funded"
         );
-        DealFactory(dealFactory).redeemBond(msg.sender, calcPricePer(), creditors[msg.sender]);
+        DealFactory df = DealFactory(dealFactory);
+        BondManager bm = BondManager(bondManager);
+        // Amount of bonds that the user is redeeming
+        uint256 tokenID = df.bonds(address(this));
+        uint256 amount = bm.balanceOf(msg.sender, tokenID) + creditors[msg.sender];
+        bm.burn(msg.sender, tokenID, amount);
+        uint256 value = calcPricePer() * amount;
+        token.transfer(msg.sender, value);
     }
 
     // CANCELED FUNCTIONS (status=2)
